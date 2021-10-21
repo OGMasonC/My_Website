@@ -82,8 +82,8 @@ params:
     showcase:
       - image: lbs.jpg
         subtitle: Biography
-        title: About me
-        url: blogs/aliquam
+        title: About mebl
+        url: blogs/ogmc
       - image: stock.jpg
         subtitle: Risk Return of DJIA Industrial Average
         title: Stock Risk Return Analysis
