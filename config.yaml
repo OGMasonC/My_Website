@@ -87,7 +87,7 @@ params:
       - image: stock.jpg
         subtitle: Risk Return of DJIA Industrial Average
         title: Stock Risk Return Analysis
-        url: projects/stock
+        url: blogs/risk_return
       - image: pic03.jpg
         subtitle: Lorem Etiam Nullam
         title: Magna
