@@ -83,7 +83,7 @@ params:
       - image: lbs.jpg
         subtitle: Biography
         title: About me
-        url: blogs/mctoogood
+        url: blogs/myself
       - image: Stock.jpg
         subtitle: Risk Return of DJIA Industrial Average
         title: Stock Risk Return Analysis

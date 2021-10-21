@@ -7,7 +7,7 @@ description: Junbing (Mason) Chen
 draft: false
 image: fly.jpg
 keywords: ""
-slug: mctoogood
+slug: myself
 title: Mason Chen
 ---
 
