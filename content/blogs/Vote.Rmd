@@ -1,0 +1,123 @@
+---
+categories:
+- ""
+- ""
+date: "2021-10-11T22:42:51-05:00"
+description: Biden's Approval Margins
+draft: false
+image: vote.jpg
+keywords: ""
+slug: vote
+title: Biden's Approval Margins
+---
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(
+  message = FALSE, 
+  warning = FALSE, 
+  tidy=FALSE,     # display code as typed
+  size="small")   # slightly smaller font for code
+options(digits = 3)
+
+# default figure size
+knitr::opts_chunk$set(
+  fig.width=6.75, 
+  fig.height=6.75,
+  fig.align = "center"
+)
+```
+
+
+```{r load-libraries, include=FALSE}
+library(tidyverse)  # Load ggplot2, dplyr, and all the other tidyverse packages
+library(mosaic)
+library(ggthemes)
+library(lubridate)
+library(here)
+library(skimr)
+library(janitor)
+library(httr)
+library(readxl)
+library(vroom)
+library(infer)
+
+```
+
+# Biden's Approval Margins
+
+As we saw in class, fivethirtyeight.com has detailed data on [all polls that track the president's approval ](https://projects.fivethirtyeight.com/biden-approval-ratings)
+
+```{r, cache=TRUE}
+Biden_Approval_Margins <- read_csv(here::here("data","approval_polllist.csv"))
+
+# Import approval polls data directly off fivethirtyeight website
+approval_polllist <- read_csv('https://projects.fivethirtyeight.com/biden-approval-data/approval_polllist.csv') 
+
+glimpse(approval_polllist)
+```
+
+
+```{r, cache=TRUE}
+approval_weeks <- approval_polllist %>%
+          mutate(week=week(mdy(enddate))-3) %>%
+          group_by(week) %>%
+          select(!enddate) %>%
+          select(!startdate) %>%
+          mutate(net_approval= approve - disapprove)%>%
+          select(!approve)%>%
+          select(!disapprove)%>%
+          select(!multiversions) %>%
+          select(!tracking)%>%
+          select(!adjusted_approve)%>%
+          select(!adjusted_disapprove)%>%
+          select(!timestamp)
+approval_weeks
+```
+
+## Create a plot
+
+What I would like you to do is to calculate the average net approval rate (approve- disapprove) for each week since he got into office. I want you plot the net approval, along with its 95% confidence interval. There are various dates given for each poll, please use `enddate`, i.e., the date the poll ended.
+Also, please add an orange line at zero. Your plot should look like this:
+
+
+```{r}
+formula_ci_approval <- approval_weeks %>% 
+  
+  group_by(week) %>% 
+
+  summarise(count = n(),
+            mean = mean(net_approval,na.rm=TRUE),
+            SD = sd(net_approval,na.rm=TRUE),
+            t_critical = qt(0.975, count-1),
+            SE = SD/sqrt(count),
+            margin_error= t_critical*SE,
+            lower = (mean - margin_error),
+            upper =(mean + margin_error))
+
+formula_ci_approval
+```
+
+```{r}
+formula_ci_approval %>%
+  ggplot(aes(x = week, y=mean))+
+  geom_point()+
+  geom_line()+
+  geom_line(aes(x = week, y=upper), color = "red", size=0.3)+
+  geom_line(aes(x = week, y=lower), color = "red", size=0.3)+
+  geom_ribbon(aes(ymin=lower,ymax=upper),fill="grey", alpha=0.3)+
+  geom_smooth(se = FALSE, color = "blue")+
+  geom_line(y=0,color = "orange", size=2)+
+  labs(
+    title= "Approval Margin for Joe Biden ",
+    x= "Weeks",
+    y= "Net average approval margins "
+  )
+
+
+
+```
+
+## Compare Confidence Intervals 
+
+Compare the confidence intervals for `week 4` and `week 25`. Can you explain what's going on? One paragraph would be enough.
+>The CI for week 4 (in our document, recoded to week 1) is [10.42 - 19.29] while the CI for week 25 (in our document, recoded to week 21) is [7.82-11.53]. The first thing that becomes clear is that the width of the CI is different for week 1 (8.87) and 25  (3.71). The reason for this relies in the sample size of the polls: in week 1 there only were 20 polls providing data,against the 46 polls for week 25. The sample of the size influences the CIs also by affecting the SE: as we can see from the table above (formula_ci_approval) the SE week 1 is much higher than for for week 25 (2.119 vs 0.922).

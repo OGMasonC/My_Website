@@ -1,0 +1,134 @@
+---
+categories:
+- ""
+- ""
+date: "2021-10-11T22:42:51-05:00"
+description: Biden's Approval Margins
+draft: false
+image: vote.jpg
+keywords: ""
+slug: vote
+title: Biden's Approval Margins
+---
+
+<script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
+
+
+<div id="bidens-approval-margins" class="section level1">
+<h1>Biden’s Approval Margins</h1>
+<p>As we saw in class, fivethirtyeight.com has detailed data on <a href="https://projects.fivethirtyeight.com/biden-approval-ratings">all polls that track the president’s approval</a></p>
+<pre class="r"><code>Biden_Approval_Margins &lt;- read_csv(here::here(&quot;data&quot;,&quot;approval_polllist.csv&quot;))
+
+# Import approval polls data directly off fivethirtyeight website
+approval_polllist &lt;- read_csv(&#39;https://projects.fivethirtyeight.com/biden-approval-data/approval_polllist.csv&#39;) 
+
+glimpse(approval_polllist)</code></pre>
+<pre><code>## Rows: 1,972
+## Columns: 22
+## $ president           &lt;chr&gt; &quot;Joseph R. Biden Jr.&quot;, &quot;Joseph R. Biden Jr.&quot;, &quot;Jos…
+## $ subgroup            &lt;chr&gt; &quot;All polls&quot;, &quot;All polls&quot;, &quot;All polls&quot;, &quot;All polls&quot;…
+## $ modeldate           &lt;chr&gt; &quot;10/21/2021&quot;, &quot;10/21/2021&quot;, &quot;10/21/2021&quot;, &quot;10/21/2…
+## $ startdate           &lt;chr&gt; &quot;1/19/2021&quot;, &quot;1/19/2021&quot;, &quot;1/20/2021&quot;, &quot;1/20/2021&quot;…
+## $ enddate             &lt;chr&gt; &quot;1/21/2021&quot;, &quot;1/21/2021&quot;, &quot;1/22/2021&quot;, &quot;1/21/2021&quot;…
+## $ pollster            &lt;chr&gt; &quot;Rasmussen Reports/Pulse Opinion Research&quot;, &quot;Morni…
+## $ grade               &lt;chr&gt; &quot;B&quot;, &quot;B&quot;, &quot;B&quot;, &quot;B&quot;, &quot;B-&quot;, &quot;B+&quot;, &quot;B&quot;, &quot;B-&quot;, &quot;B+&quot;, &quot;…
+## $ samplesize          &lt;dbl&gt; 1500, 15000, 15000, 1993, 1115, 1516, 15000, 1200,…
+## $ population          &lt;chr&gt; &quot;lv&quot;, &quot;a&quot;, &quot;a&quot;, &quot;rv&quot;, &quot;a&quot;, &quot;a&quot;, &quot;a&quot;, &quot;rv&quot;, &quot;rv&quot;, &quot;…
+## $ weight              &lt;dbl&gt; 0.3382, 0.2594, 0.2333, 0.0930, 1.1014, 1.2454, 0.…
+## $ influence           &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+## $ approve             &lt;dbl&gt; 48, 50, 51, 56, 55, 45, 52, 58, 63, 48, 55, 48, 53…
+## $ disapprove          &lt;dbl&gt; 45.0, 28.0, 28.0, 31.0, 32.0, 28.0, 29.0, 32.0, 37…
+## $ adjusted_approve    &lt;dbl&gt; 50.4, 48.5, 49.5, 54.5, 53.8, 46.4, 50.5, 56.8, 58…
+## $ adjusted_disapprove &lt;dbl&gt; 38.8, 31.2, 31.2, 34.2, 33.0, 28.5, 32.2, 33.1, 38…
+## $ multiversions       &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+## $ tracking            &lt;lgl&gt; TRUE, TRUE, TRUE, NA, NA, NA, TRUE, NA, NA, TRUE, …
+## $ url                 &lt;chr&gt; &quot;https://www.rasmussenreports.com/public_content/p…
+## $ poll_id             &lt;dbl&gt; 74247, 74272, 74273, 74246, 74248, 74327, 74274, 7…
+## $ question_id         &lt;dbl&gt; 139395, 139491, 139492, 139394, 139404, 139570, 13…
+## $ createddate         &lt;chr&gt; &quot;1/22/2021&quot;, &quot;1/28/2021&quot;, &quot;1/28/2021&quot;, &quot;1/22/2021&quot;…
+## $ timestamp           &lt;chr&gt; &quot;12:10:12 21 Oct 2021&quot;, &quot;12:10:12 21 Oct 2021&quot;, &quot;1…</code></pre>
+<pre class="r"><code>approval_weeks &lt;- approval_polllist %&gt;%
+          mutate(week=week(mdy(enddate))-3) %&gt;%
+          group_by(week) %&gt;%
+          select(!enddate) %&gt;%
+          select(!startdate) %&gt;%
+          mutate(net_approval= approve - disapprove)%&gt;%
+          select(!approve)%&gt;%
+          select(!disapprove)%&gt;%
+          select(!multiversions) %&gt;%
+          select(!tracking)%&gt;%
+          select(!adjusted_approve)%&gt;%
+          select(!adjusted_disapprove)%&gt;%
+          select(!timestamp)
+approval_weeks</code></pre>
+<pre><code>## # A tibble: 1,972 × 15
+## # Groups:   week [40]
+##    president   subgroup modeldate pollster    grade samplesize population weight
+##    &lt;chr&gt;       &lt;chr&gt;    &lt;chr&gt;     &lt;chr&gt;       &lt;chr&gt;      &lt;dbl&gt; &lt;chr&gt;       &lt;dbl&gt;
+##  1 Joseph R. … All pol… 10/21/20… Rasmussen … B           1500 lv         0.338 
+##  2 Joseph R. … All pol… 10/21/20… Morning Co… B          15000 a          0.259 
+##  3 Joseph R. … All pol… 10/21/20… Morning Co… B          15000 a          0.233 
+##  4 Joseph R. … All pol… 10/21/20… Morning Co… B           1993 rv         0.0930
+##  5 Joseph R. … All pol… 10/21/20… Ipsos       B-          1115 a          1.10  
+##  6 Joseph R. … All pol… 10/21/20… YouGov      B+          1516 a          1.25  
+##  7 Joseph R. … All pol… 10/21/20… Morning Co… B          15000 a          0.215 
+##  8 Joseph R. … All pol… 10/21/20… RMG Resear… B-          1200 rv         0.881 
+##  9 Joseph R. … All pol… 10/21/20… HarrisX     B+           941 rv         1.04  
+## 10 Joseph R. … All pol… 10/21/20… Rasmussen … B           1500 lv         0.178 
+## # … with 1,962 more rows, and 7 more variables: influence &lt;dbl&gt;, url &lt;chr&gt;,
+## #   poll_id &lt;dbl&gt;, question_id &lt;dbl&gt;, createddate &lt;chr&gt;, week &lt;dbl&gt;,
+## #   net_approval &lt;dbl&gt;</code></pre>
+<div id="create-a-plot" class="section level2">
+<h2>Create a plot</h2>
+<p>What I would like you to do is to calculate the average net approval rate (approve- disapprove) for each week since he got into office. I want you plot the net approval, along with its 95% confidence interval. There are various dates given for each poll, please use <code>enddate</code>, i.e., the date the poll ended.
+Also, please add an orange line at zero. Your plot should look like this:</p>
+<pre class="r"><code>formula_ci_approval &lt;- approval_weeks %&gt;% 
+  
+  group_by(week) %&gt;% 
+
+  summarise(count = n(),
+            mean = mean(net_approval,na.rm=TRUE),
+            SD = sd(net_approval,na.rm=TRUE),
+            t_critical = qt(0.975, count-1),
+            SE = SD/sqrt(count),
+            margin_error= t_critical*SE,
+            lower = (mean - margin_error),
+            upper =(mean + margin_error))
+
+formula_ci_approval</code></pre>
+<pre><code>## # A tibble: 40 × 9
+##     week count  mean    SD t_critical    SE margin_error lower upper
+##    &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;      &lt;dbl&gt; &lt;dbl&gt;        &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+##  1     0    11  18.6  8.23       2.23  2.48         5.53  13.1  24.2
+##  2     1    51  18.5  8.94       2.01  1.25         2.52  15.9  21.0
+##  3     2    54  16.7  7.59       2.01  1.03         2.07  14.6  18.8
+##  4     3    37  16.6  8.16       2.03  1.34         2.72  13.9  19.3
+##  5     4    50  16.3  7.34       2.01  1.04         2.09  14.3  18.4
+##  6     5    50  15.0  7.77       2.01  1.10         2.21  12.8  17.2
+##  7     6    53  13.4  7.46       2.01  1.02         2.06  11.3  15.4
+##  8     7    49  12.9  7.08       2.01  1.01         2.03  10.9  15.0
+##  9     8    43  15.8  7.45       2.02  1.14         2.29  13.5  18.1
+## 10     9    57  14.7  9.32       2.00  1.23         2.47  12.3  17.2
+## # … with 30 more rows</code></pre>
+<pre class="r"><code>formula_ci_approval %&gt;%
+  ggplot(aes(x = week, y=mean))+
+  geom_point()+
+  geom_line()+
+  geom_line(aes(x = week, y=upper), color = &quot;red&quot;, size=0.3)+
+  geom_line(aes(x = week, y=lower), color = &quot;red&quot;, size=0.3)+
+  geom_ribbon(aes(ymin=lower,ymax=upper),fill=&quot;grey&quot;, alpha=0.3)+
+  geom_smooth(se = FALSE, color = &quot;blue&quot;)+
+  geom_line(y=0,color = &quot;orange&quot;, size=2)+
+  labs(
+    title= &quot;Approval Margin for Joe Biden &quot;,
+    x= &quot;Weeks&quot;,
+    y= &quot;Net average approval margins &quot;
+  )</code></pre>
+<p><img src="/blogs/Vote_files/figure-html/unnamed-chunk-4-1.png" width="648" style="display: block; margin: auto;" /></p>
+</div>
+<div id="compare-confidence-intervals" class="section level2">
+<h2>Compare Confidence Intervals</h2>
+<p>Compare the confidence intervals for <code>week 4</code> and <code>week 25</code>. Can you explain what’s going on? One paragraph would be enough.
+&gt;The CI for week 4 (in our document, recoded to week 1) is [10.42 - 19.29] while the CI for week 25 (in our document, recoded to week 21) is [7.82-11.53]. The first thing that becomes clear is that the width of the CI is different for week 1 (8.87) and 25 (3.71). The reason for this relies in the sample size of the polls: in week 1 there only were 20 polls providing data,against the 46 polls for week 25. The sample of the size influences the CIs also by affecting the SE: as we can see from the table above (formula_ci_approval) the SE week 1 is much higher than for for week 25 (2.119 vs 0.922).</p>
+</div>
+</div>
