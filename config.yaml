@@ -41,13 +41,13 @@ params:
         text: 'Design: '
         url: https://www.html5up.net
     social:
-     # - icon: #--
+      - icon: #--
         label: #--
         url: #--
       - icon: fa-facebook
         label: Facebook
         url: https://www.facebook.com/masonchen668
-    #  - icon: #--
+      - icon: #--
         label: #--
         url: #--
       - icon: fa-github
